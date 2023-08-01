@@ -1,9 +1,11 @@
 package net.kalandoz.runic_sword_art;
 
+import net.kalandoz.runic_sword_art.item.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -28,6 +30,10 @@ public class RunicSwordArt
     private static final Logger LOGGER = LogManager.getLogger();
 
     public RunicSwordArt() {
+        // added for convenience (to access the eventBus easier)
+        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        // adding ModItems to the registration list
+        ModItems.register(eventBus);
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         // Register the enqueueIMC method for modloading
