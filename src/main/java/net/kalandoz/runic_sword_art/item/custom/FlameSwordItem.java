@@ -1,26 +1,20 @@
 package net.kalandoz.runic_sword_art.item.custom;
 
-import mcp.MethodsReturnNonnullByDefault;
-import net.kalandoz.runic_sword_art.utils.RunicUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.SwordItem;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.item.*;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -30,6 +24,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 public class FlameSwordItem extends SwordItem {
+
+    private int tickCounter = 0;
+
     public FlameSwordItem(IItemTier tier, int p_i48460_2_, float p_i48460_3_, Properties p_i48460_4_) {
         super(tier, p_i48460_2_, p_i48460_3_, p_i48460_4_);
     }
@@ -60,68 +57,64 @@ public class FlameSwordItem extends SwordItem {
     }
 
     @Override
-    @MethodsReturnNonnullByDefault
-    public ActionResultType onItemUse(ItemUseContext context) {
-        
-        World world = context.getWorld();
-        PlayerEntity playerEntity = context.getPlayer();
-        ItemStack stack = context.getItem();
-
-        // retrieves an instance of world from context to later check if world is remote
-        // (to prevent code triggering twice)
-        // retrieves an instance of playerEntity from context to later apply fire resistance
-        // retrieves an instance of itemStack from context to later consume durability
-        if(!world.isRemote) {
-            if (playerEntity != null) {
-                // gives the player fire resistance for 30 seconds
-                playerEntity.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 600));
-                // activates if the player isn't crouching
-                if (!playerEntity.isCrouching()) {
-                    // sets nearby ground on fire semi-randomly
-                    burnNearbyBlocks(world, playerEntity.getPositionVec(), playerEntity, 4);
-                    // damages item (and breaks it if it would break)
-                    stack.damageItem(25, playerEntity, player -> player.sendBreakAnimation(playerEntity.getActiveHand()));
-                }
+    @ParametersAreNonnullByDefault
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        PlayerEntity player = Minecraft.getInstance().player;
+        if (!worldIn.isRemote && player != null) {
+            if (tickCounter == 40) {
+                // removes previous fire resistance effect (so that the following effect can be applied)
+                player.removePotionEffect(Effects.FIRE_RESISTANCE);
+                // give the player fire resistance for 2 minutes
+                // player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 400));
+                tickCounter = 0;
+            } else {
+                tickCounter++;
             }
         }
-        super.onItemUse(context);
-        return ActionResultType.SUCCESS;
     }
 
-    private void burnNearbyBlocks(World world, Vector3d origin, @Nullable LivingEntity entity, double radius) {
-        // checking if world is remote to prevent effect from triggering twice
-        if (!world.isRemote) {
-
-            // stops fire from being set within a 3x3 centered on the player
-            for (int i = -(int) radius; i <= (int) radius; i++) {
-                for (int j = -(int) radius; j <= (int) radius; j++) {
-                    if (i <= 1 && i >= -1 && j <= 1 && j >= -1) {
-                        continue;
-                    }
-                    if (Math.abs(i) + Math.abs(j) == radius * 2) {
-                        continue;
-                    }
-
-                    BlockPos pos = new BlockPos(origin).add(i, 0, j);
-
-                    Integer y = RunicUtils.getNearestSurface(world, pos, Direction.UP, (int)radius, true, RunicUtils.SurfaceCriteria.NOT_AIR_TO_AIR);
-
-                    if (y != null) {
-
-                        pos = new BlockPos(pos.getX(), y, pos.getZ());
-
-                        double distance = origin.distanceTo(new Vector3d(origin.x + i, y, origin.z + j));
-
-                        // Randomised with weighting so that the nearer the block the more likely it is to be set alight.
-                        if (y != -1 && world.rand.nextInt((int) (distance * 2) + 1) < radius && distance < radius && distance > 1.5) {
-                            if (entity != null) {
-                                BlockState blockstate = AbstractFireBlock.getFireForPlacement(world, pos);
-                                world.setBlockState(pos, blockstate, 11);
-                            }
-                        }
-                    }
-                }
+    @Override
+    public ActionResultType onItemUse(ItemUseContext context) {
+        /**
+         * Acts as flint & steel when used on the ground
+         */
+        // retrieves an instance of world from context to later check if world is remote
+        // (to prevent code triggering twice)
+        World world = context.getWorld();
+        // retrieves an instance of playerEntity from context to later apply fire resistance
+        PlayerEntity player = context.getPlayer();
+        // retrieves an instance of itemStack from context to later consume durability
+        ItemStack stack = context.getItem();
+        if(!world.isRemote && player != null) {
+            // activates if the player isn't crouching
+            if(!player.isCrouching()) {
+                // sets nearby ground on fire semi-randomly
+                lightGroundOnFire(context);
+                // damages item (and breaks it if it would break)
+                stack.damageItem(25, player, playerEntity -> playerEntity.sendBreakAnimation(playerEntity.getActiveHand()));
             }
+        }
+        return super.onItemUse(context);
+    }
+
+    public static void lightGroundOnFire(ItemUseContext context) {
+        /**
+         * Sets ground on fire after making proper checks
+         */
+        // retrieves instance of player to play flint & steel sound later on
+        PlayerEntity player = context.getPlayer();
+        // retrieves instance of world to configure fire blockstate & later place fire
+        World world = context.getWorld();
+        BlockPos blockpos = context.getPos().offset(context.getFace());
+        // checks if target block can be lit on fire
+        if (AbstractFireBlock.canLightBlock(world, blockpos, context.getPlacementHorizontalFacing())) {
+            // plays prerecorded sound of flint & steel being used
+            world.playSound(player, blockpos, SoundEvents.ITEM_FLINTANDSTEEL_USE,
+                    SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
+            // configures fire block (mandatory)
+            BlockState blockstate = AbstractFireBlock.getFireForPlacement(world, blockpos);
+            // setting ground on fire
+            world.setBlockState(blockpos, blockstate, 11);
         }
     }
 }
