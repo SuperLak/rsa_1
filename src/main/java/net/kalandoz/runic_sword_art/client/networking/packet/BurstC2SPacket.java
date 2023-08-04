@@ -1,6 +1,7 @@
 package net.kalandoz.runic_sword_art.client.networking.packet;
 
 import net.kalandoz.runic_sword_art.item.ModItems;
+import net.kalandoz.runic_sword_art.utils.AoEUtils;
 import net.kalandoz.runic_sword_art.utils.RunicUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
@@ -46,9 +47,6 @@ public class BurstC2SPacket {
             ServerPlayerEntity player = context.getSender();
             ServerWorld worldIn = Objects.requireNonNull(context.getSender()).getServerWorld();
             if (player != null) {
-                System.out.println("Player is valid!");
-                boolean p = player.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get();
-                System.out.println("Item is valid: " + p);
                 if (player.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
                     // sending confirmation message
                     System.out.println("Activating Burst Key!");
@@ -56,6 +54,8 @@ public class BurstC2SPacket {
                     burnNearbyBlocks(worldIn, player.getPositionVec(), 4);
                     // spawning particles for flair
                     spawnParticles(player);
+                    // testing AoE Flame Burst
+                    AoEUtils.applyFlameBurstToNearbyEnemies(player, 4);
                 }
             }
         });
@@ -72,14 +72,11 @@ public class BurstC2SPacket {
             for (int i = -(int) radius; i <= (int) radius; i++) {
                 // causes all blocks on the z-axis to be considered as potential targets for fire
                 for (int j = -(int) radius; j <= (int) radius; j++) {
-                    // stops fire from being set within a 3x3 centered on the player
+                    /* stops fire from being set within a 3x3 centered on the player
                     if (i <= 1 && i >= -1 && j <= 1 && j >= -1) {
                         continue;
                     }
-                    // prevents the 4 farthest corners from the player from being lit on fire
-                    if (Math.abs(i) + Math.abs(j) == radius * 2) {
-                        continue;
-                    }
+                     */
                     // creates an instance of BlockPos which will be used to
                     // calculate which surface is closest to the player
                     BlockPos pos = new BlockPos(origin).add(i, 0, j);
