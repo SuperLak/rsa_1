@@ -2,7 +2,6 @@ package net.kalandoz.runic_sword_art.item.custom;
 
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -10,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.SoundCategory;
@@ -59,17 +59,22 @@ public class FlameSwordItem extends SwordItem {
     @Override
     @ParametersAreNonnullByDefault
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (!worldIn.isRemote && player != null) {
-            if (tickCounter == 40) {
+        // activates when tickCounter reaches 40
+        // (every 2 seconds)
+        if (tickCounter == 40) {
+            // retrieves an instance of player to later apply fire resistance
+            PlayerEntity player = worldIn.getClosestPlayer(entityIn, 1);
+            if (!worldIn.isRemote && player != null && isSelected) {
                 // removes previous fire resistance effect (so that the following effect can be applied)
                 player.removePotionEffect(Effects.FIRE_RESISTANCE);
                 // give the player fire resistance for 2 minutes
-                // player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 400));
+                player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 400));
+                // resets tickCounter to 0
                 tickCounter = 0;
-            } else {
-                tickCounter++;
             }
+        } else {
+            // increases tickCounter by 1
+            tickCounter++;
         }
     }
 
