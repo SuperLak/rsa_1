@@ -1,5 +1,6 @@
 package net.kalandoz.runic_sword_art;
 
+import net.kalandoz.runic_sword_art.client.networking.ModMessages;
 import net.kalandoz.runic_sword_art.item.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -47,11 +48,8 @@ public class RunicSwordArt
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
-        // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+    private void setup(final FMLCommonSetupEvent event) {
+        ModMessages.register();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
