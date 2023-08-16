@@ -8,8 +8,10 @@ import java.awt.event.KeyEvent;
 
 public class ModKeyBindings {
     public static final String KEY_CATEGORY_TUTORIAL = "key.runic_sword_art.tutorial";
+    public static final String PROJECTILE_KEY = "key.runic_sword_art.projectile_key";
     public static final String BURST_KEY = "key.runic_sword_art.burst_key";
 
+    public static KeyBinding projectileKey = new KeyBinding(PROJECTILE_KEY, KeyEvent.VK_I, KEY_CATEGORY_TUTORIAL);
     public static KeyBinding burstKey = new KeyBinding(BURST_KEY, KeyEvent.VK_O, KEY_CATEGORY_TUTORIAL);
 
     public static void register(final FMLClientSetupEvent event) {

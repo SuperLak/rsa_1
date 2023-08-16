@@ -1,5 +1,6 @@
 package net.kalandoz.runic_sword_art.item.custom;
 
+import net.kalandoz.runic_sword_art.client.ClientEvents;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
@@ -69,6 +70,8 @@ public class FlameSwordItem extends SwordItem {
                 player.removePotionEffect(Effects.FIRE_RESISTANCE);
                 // give the player fire resistance for 2 minutes
                 player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 400));
+                stack.setDamage(stack.getDamage()-1);
+                ClientEvents.decrementAllCooldowns();
                 // resets tickCounter to 0
                 tickCounter = 0;
             }
@@ -96,7 +99,7 @@ public class FlameSwordItem extends SwordItem {
                 // sets nearby ground on fire semi-randomly
                 lightGroundOnFire(context);
                 // damages item (and breaks it if it would break)
-                stack.damageItem(25, player, playerEntity -> playerEntity.sendBreakAnimation(playerEntity.getActiveHand()));
+                stack.damageItem(5, player, playerEntity -> playerEntity.sendBreakAnimation(playerEntity.getActiveHand()));
             }
         }
         return super.onItemUse(context);

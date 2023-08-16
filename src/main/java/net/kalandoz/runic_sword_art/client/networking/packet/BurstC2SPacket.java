@@ -42,20 +42,21 @@ public class BurstC2SPacket {
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
+
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayerEntity player = context.getSender();
+            ServerPlayerEntity playerIn = context.getSender();
             ServerWorld worldIn = Objects.requireNonNull(context.getSender()).getServerWorld();
-            if (player != null) {
-                if (player.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
+            if (playerIn != null) {
+                if (playerIn.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
                     // sending confirmation message
                     System.out.println("Activating Burst Key!");
                     // activating flame burst
-                    burnNearbyBlocks(worldIn, player.getPositionVec(), 4);
+                    // burnNearbyBlocks(worldIn, playerIn.getPositionVec(), 4);
                     // spawning particles for flair
-                    spawnParticles(player);
-                    // testing AoE Flame Burst
-                    AoEUtils.applyFlameBurstToNearbyEnemies(player, 4);
+                    spawnParticles(playerIn);
+                    // lighting nearby enemies on fire
+                    AoEUtils.applyFlameBurstToNearbyEnemies(playerIn, 5);
                 }
             }
         });
@@ -115,11 +116,11 @@ public class BurstC2SPacket {
         // causes each degree(360) to be determined for the adding of a particle
         for(int i = 0; i < 360; i++) {
             // only adds a particle every 20 degrees (total of 18 times)
-            if(i % 20 == 0) {
+            if(i % 10 == 0) {
                 // adds the particle
                 Minecraft.getInstance().particles.addParticle(ParticleTypes.FLAME,
                         player.getPosX(), player.getPosY(), player.getPosZ(),
-                        Math.cos(i) * 0.15d, 0.15d, Math.sin(i) * 0.15d);
+                        Math.cos(i) * 0.25d, 0.15d, Math.sin(i) * 0.25d);
             }
         }
     }
