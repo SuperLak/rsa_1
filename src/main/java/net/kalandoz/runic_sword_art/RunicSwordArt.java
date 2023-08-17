@@ -3,9 +3,9 @@ package net.kalandoz.runic_sword_art;
 import net.kalandoz.runic_sword_art.client.networking.ModMessages;
 import net.kalandoz.runic_sword_art.effect.ModEffects;
 import net.kalandoz.runic_sword_art.item.ModItems;
+import net.kalandoz.runic_sword_art.capability.ModCapabilities;
 import net.kalandoz.runic_sword_art.world.entity.ModEntityType;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -56,6 +56,7 @@ public class RunicSwordArt
 
     private void setup(final FMLCommonSetupEvent event) {
         ModMessages.register();
+        ModCapabilities.register();
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -65,7 +66,7 @@ public class RunicSwordArt
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
         // some example code to dispatch IMC to another mod
-        InterModComms.sendTo("examplemod", "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
+        InterModComms.sendTo(MOD_ID, "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
     }
 
     private void processIMC(final InterModProcessEvent event)

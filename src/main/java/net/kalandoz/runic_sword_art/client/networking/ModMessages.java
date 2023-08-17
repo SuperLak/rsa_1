@@ -2,6 +2,7 @@ package net.kalandoz.runic_sword_art.client.networking;
 
 import net.kalandoz.runic_sword_art.RunicSwordArt;
 import net.kalandoz.runic_sword_art.client.networking.packet.BurstC2SPacket;
+import net.kalandoz.runic_sword_art.client.networking.packet.ManaC2SPacket;
 import net.kalandoz.runic_sword_art.client.networking.packet.ProjectileC2SPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -26,6 +27,12 @@ public class ModMessages {
                 .simpleChannel();
 
         INSTANCE = net;
+
+        net.messageBuilder(ManaC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ManaC2SPacket::decode)
+                .encoder(ManaC2SPacket::encode)
+                .consumer(ManaC2SPacket::handle)
+                .add();
 
         net.messageBuilder(ProjectileC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ProjectileC2SPacket::decode)

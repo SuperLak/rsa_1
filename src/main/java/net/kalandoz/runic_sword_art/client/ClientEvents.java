@@ -3,6 +3,7 @@ package net.kalandoz.runic_sword_art.client;
 import net.kalandoz.runic_sword_art.RunicSwordArt;
 import net.kalandoz.runic_sword_art.client.networking.ModMessages;
 import net.kalandoz.runic_sword_art.client.networking.packet.BurstC2SPacket;
+import net.kalandoz.runic_sword_art.client.networking.packet.ManaC2SPacket;
 import net.kalandoz.runic_sword_art.client.networking.packet.ProjectileC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,18 +23,21 @@ public class ClientEvents {
         }
     }
     public static void onInput(Minecraft mc, int key, int action) {
-        System.out.println("Pressed Projectile Key! Previous cooldown: " + projectileCooldown);
-        if (ModKeyBindings.projectileKey.isPressed() && projectileCooldown <= 0){
-            projectileCooldown = 25;
-            System.out.println("Current cooldown: " + projectileCooldown);
-            ModMessages.sendToServer(new ProjectileC2SPacket());
-        }
-        if (mc.currentScreen == null && burstCooldown <= 0) {
-            System.out.println("Pressed Burst Key! Previous cooldown: " + burstCooldown);
-            if (ModKeyBindings.burstKey.isPressed()){
-                burstCooldown = 50;
-                System.out.println("Current cooldown: " + burstCooldown);
-                ModMessages.sendToServer(new BurstC2SPacket());
+        if (mc.currentScreen == null) {
+            if (ModKeyBindings.manaKey.isPressed()) {
+                ModMessages.sendToServer(new ManaC2SPacket());
+            }
+            if (ModKeyBindings.projectileKey.isPressed() && projectileCooldown <= 0) {
+                System.out.println("Pressed Projectile Key! Previous cooldown: " + projectileCooldown);
+                projectileCooldown = 25;
+                System.out.println("Current cooldown: " + projectileCooldown);
+                ModMessages.sendToServer(new ProjectileC2SPacket());
+            }
+            if (ModKeyBindings.burstKey.isPressed() && burstCooldown <= 0) {
+                System.out.println("Pressed Burst Key! Previous cooldown: " + burstCooldown);
+                    burstCooldown = 50;
+                    System.out.println("Current cooldown: " + burstCooldown);
+                    ModMessages.sendToServer(new BurstC2SPacket());
             }
         }
     }
