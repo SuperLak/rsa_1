@@ -2,6 +2,7 @@ package net.kalandoz.runic_sword_art.client.networking.packet;
 
 import net.kalandoz.runic_sword_art.item.ModItems;
 import net.kalandoz.runic_sword_art.utils.AoEUtils;
+import net.kalandoz.runic_sword_art.utils.ManaUtils;
 import net.kalandoz.runic_sword_art.utils.RunicUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
@@ -49,14 +50,13 @@ public class BurstC2SPacket {
             ServerWorld worldIn = Objects.requireNonNull(context.getSender()).getServerWorld();
             if (playerIn != null) {
                 if (playerIn.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
-                    // sending confirmation message
-                    System.out.println("Activating Burst Key!");
-                    // activating flame burst
-                    // burnNearbyBlocks(worldIn, playerIn.getPositionVec(), 4);
-                    // spawning particles for flair
-                    spawnParticles(playerIn);
-                    // lighting nearby enemies on fire
-                    AoEUtils.applyFlameBurstToNearbyEnemies(playerIn, 5);
+                    // only using power if player has enough mana
+                    if (ManaUtils.consumeMana(null, playerIn, 40)) {
+                        // lighting nearby enemies on fire
+                        AoEUtils.applyFlameBurstToNearbyEnemies(playerIn, 5);
+                        // spawning particles for flair
+                        spawnParticles(playerIn);
+                    }
                 }
             }
         });

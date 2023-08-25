@@ -1,6 +1,7 @@
 package net.kalandoz.runic_sword_art.item.custom;
 
 import net.kalandoz.runic_sword_art.client.ClientEvents;
+import net.kalandoz.runic_sword_art.utils.ManaUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
@@ -52,26 +53,36 @@ public class FlameSwordItem extends SwordItem {
     @ParametersAreNonnullByDefault
     public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         // sets target on fire for a number of seconds
-        target.setFire(5);
-        stack.damageItem(1, attacker, (playerEntity) -> playerEntity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+        if (attacker instanceof PlayerEntity) {
+            if (ManaUtils.consumeMana(null, (PlayerEntity) attacker, 5)) {
+                target.setFire(5);
+
+            } else {
+                    stack.damageItem(1, attacker, (playerEntity) -> playerEntity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+            }
+        }
         return true;
     }
 
     @Override
     @ParametersAreNonnullByDefault
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        // retrieves an instance of player for later applications
+        PlayerEntity player = worldIn.getClosestPlayer(entityIn, 1);
+        // fills the player's mana in 3 minutes
+        if (tickCounter % 20 == 0) {
+            ManaUtils.fillManaProportionally(null, player, 300);
+        }
         // activates when tickCounter reaches 40
         // (every 2 seconds)
         if (tickCounter == 40) {
-            // retrieves an instance of player to later apply fire resistance
-            PlayerEntity player = worldIn.getClosestPlayer(entityIn, 1);
             if (!worldIn.isRemote && player != null && isSelected) {
                 // removes previous fire resistance effect (so that the following effect can be applied)
                 player.removePotionEffect(Effects.FIRE_RESISTANCE);
                 // give the player fire resistance for 2 minutes
                 player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 400));
+                // heals 1 durability from item
                 stack.setDamage(stack.getDamage()-1);
-                ClientEvents.decrementAllCooldowns();
                 // resets tickCounter to 0
                 tickCounter = 0;
             }
@@ -99,7 +110,7 @@ public class FlameSwordItem extends SwordItem {
                 // sets nearby ground on fire semi-randomly
                 lightGroundOnFire(context);
                 // damages item (and breaks it if it would break)
-                stack.damageItem(5, player, playerEntity -> playerEntity.sendBreakAnimation(playerEntity.getActiveHand()));
+                ManaUtils.consumeMana(null, player, 10);
             }
         }
         return super.onItemUse(context);

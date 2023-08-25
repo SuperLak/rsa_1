@@ -1,13 +1,10 @@
 package net.kalandoz.runic_sword_art.client.networking.packet;
 
 import net.kalandoz.runic_sword_art.item.ModItems;
-import net.kalandoz.runic_sword_art.world.entity.ModEntityType;
+import net.kalandoz.runic_sword_art.utils.ManaUtils;
 import net.kalandoz.runic_sword_art.world.entity.projectile.FlameArcEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.DragonFireballEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -20,8 +17,6 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 public class ProjectileC2SPacket {
-
-    Random rand = new Random();
 
     public int key;
 
@@ -51,28 +46,32 @@ public class ProjectileC2SPacket {
                 if (playerIn.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
                     // sending confirmation message
                     System.out.println("Activating Projectile Key!");
-                    // test
-                    boolean flag = playerIn.abilities.isCreativeMode;
-                    // f = velocity
-                    float f = 1.0f;
-                    // if (!((double)f < 0.1D)) {
-                    if (!worldIn.isRemote) {
-                        Vector3d vec = playerIn.getPositionVec();
-                        FlameArcEntity arc = new FlameArcEntity(worldIn, playerIn, 0, 0, 0);
-                        arc.setFire(100);
-                        arc.setDirectionAndMovement(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, f * 3.0F, 1.0F);
-                        // Cannot be picked up due to lack of actual item ;)
-                        // This adds entity (VERY IMPORTANT)
-                        worldIn.addEntity(arc);
-                        // Plays Shoot Bow Sound when fired
-                        worldIn.playSound((PlayerEntity) playerIn, playerIn.getPosX(), playerIn.getPosY(),
-                                playerIn.getPosZ(), SoundEvents.ENTITY_ENDER_DRAGON_SHOOT,
-                                SoundCategory.PLAYERS, 1.0F,
-                                1.0F / (rand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+                    if (ManaUtils.consumeMana(null, playerIn, 100)) {
+                        flameArc(playerIn.getPositionVec(), worldIn, playerIn);
                     }
                 }
             }
         });
         return true;
+    }
+
+    public static void flameArc(Vector3d vec, ServerWorld worldIn, ServerPlayerEntity playerIn) {
+        Random rand = new Random();
+        // f = velocity
+        float f = 1.0f;
+        // if (!((double)f < 0.1D)) {
+        if (!worldIn.isRemote) {
+            FlameArcEntity arc = new FlameArcEntity(worldIn, playerIn, 0, 0, 0);
+            arc.setFire(100);
+            arc.setDirectionAndMovement(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, f * 3.0F, 1.0F);
+            // Cannot be picked up due to lack of actual item ;)
+            // This adds entity (VERY IMPORTANT)
+            worldIn.addEntity(arc);
+            // Plays Shoot Bow Sound when fired
+            worldIn.playSound((PlayerEntity) playerIn, playerIn.getPosX(), playerIn.getPosY(),
+                    playerIn.getPosZ(), SoundEvents.ENTITY_ENDER_DRAGON_SHOOT,
+                    SoundCategory.PLAYERS, 1.0F,
+                    1.0F / (rand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+        }
     }
 }
