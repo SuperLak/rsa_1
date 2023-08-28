@@ -1,7 +1,6 @@
 package net.kalandoz.runic_sword_art.client.networking.packet;
 
-import net.kalandoz.runic_sword_art.item.ModItems;
-import net.kalandoz.runic_sword_art.utils.ManaUtils;
+import net.kalandoz.runic_sword_art.utils.AttunementUtils;
 import net.kalandoz.runic_sword_art.world.entity.projectile.FlameArcEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -12,45 +11,36 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public class ProjectileC2SPacket {
+public class SecondaryC2SPacket {
 
     public int key;
 
-    public ProjectileC2SPacket() {
+    public SecondaryC2SPacket() {
 
     }
 
-    public ProjectileC2SPacket(int key) {
+    public SecondaryC2SPacket(int key) {
         this.key = key;
     }
 
-    public static void encode(ProjectileC2SPacket packet, PacketBuffer buffer) {
+    public static void encode(SecondaryC2SPacket packet, PacketBuffer buffer) {
         buffer.writeInt(packet.key);
     }
 
-    public static ProjectileC2SPacket decode(PacketBuffer buffer) {
-        return new ProjectileC2SPacket(buffer.readInt());
+    public static SecondaryC2SPacket decode(PacketBuffer buffer) {
+        return new SecondaryC2SPacket(buffer.readInt());
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayerEntity playerIn = context.getSender();
-            ServerWorld worldIn = Objects.requireNonNull(context.getSender()).getServerWorld();
-            if (playerIn != null) {
-                if (playerIn.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
-                    // sending confirmation message
-                    System.out.println("Activating Projectile Key!");
-                    if (ManaUtils.consumeMana(null, playerIn, 100)) {
-                        flameArc(playerIn.getPositionVec(), worldIn, playerIn);
-                    }
-                }
-            }
+            System.out.println("Pre secondary message");
+            AttunementUtils.secondaryAbility(context);
+            System.out.println("Post secondary message");
         });
         return true;
     }

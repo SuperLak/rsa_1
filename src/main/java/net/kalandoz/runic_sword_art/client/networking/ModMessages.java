@@ -1,9 +1,9 @@
 package net.kalandoz.runic_sword_art.client.networking;
 
 import net.kalandoz.runic_sword_art.RunicSwordArt;
-import net.kalandoz.runic_sword_art.client.networking.packet.BurstC2SPacket;
-import net.kalandoz.runic_sword_art.client.networking.packet.ManaC2SPacket;
-import net.kalandoz.runic_sword_art.client.networking.packet.ProjectileC2SPacket;
+import net.kalandoz.runic_sword_art.client.networking.packet.CompositeC2SPacket;
+import net.kalandoz.runic_sword_art.client.networking.packet.PrimaryC2SPacket;
+import net.kalandoz.runic_sword_art.client.networking.packet.SecondaryC2SPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -28,22 +28,22 @@ public class ModMessages {
 
         INSTANCE = net;
 
-        net.messageBuilder(ManaC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(ManaC2SPacket::decode)
-                .encoder(ManaC2SPacket::encode)
-                .consumer(ManaC2SPacket::handle)
+        net.messageBuilder(PrimaryC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(PrimaryC2SPacket::decode)
+                .encoder(PrimaryC2SPacket::encode)
+                .consumer(PrimaryC2SPacket::handle)
                 .add();
 
-        net.messageBuilder(ProjectileC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(ProjectileC2SPacket::decode)
-                .encoder(ProjectileC2SPacket::encode)
-                .consumer(ProjectileC2SPacket::handle)
+        net.messageBuilder(SecondaryC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SecondaryC2SPacket::decode)
+                .encoder(SecondaryC2SPacket::encode)
+                .consumer(SecondaryC2SPacket::handle)
                 .add();
 
-        net.messageBuilder(BurstC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(BurstC2SPacket::decode)
-                .encoder(BurstC2SPacket::encode)
-                .consumer(BurstC2SPacket::handle)
+        net.messageBuilder(CompositeC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(CompositeC2SPacket::decode)
+                .encoder(CompositeC2SPacket::encode)
+                .consumer(CompositeC2SPacket::handle)
                 .add();
     }
 

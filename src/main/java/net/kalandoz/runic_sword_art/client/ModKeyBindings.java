@@ -8,17 +8,17 @@ import java.awt.event.KeyEvent;
 
 public class ModKeyBindings {
     public static final String KEY_CATEGORY_TUTORIAL = "key.runic_sword_art.tutorial";
-    public static final String MANA_KEY = "key.runic_sword_art.mana_key";
-    public static final String PROJECTILE_KEY = "key.runic_sword_art.projectile_key";
-    public static final String BURST_KEY = "key.runic_sword_art.burst_key";
+    public static final String PRIMARY_KEY = "key.runic_sword_art.primary_key";
+    public static final String SECONDARY_KEY = "key.runic_sword_art.secondary_key";
+    public static final String COMPOSITE_KEY = "key.runic_sword_art.composite_key";
 
-    public static KeyBinding manaKey = new KeyBinding(MANA_KEY, KeyEvent.VK_U, KEY_CATEGORY_TUTORIAL);
-    public static KeyBinding projectileKey = new KeyBinding(PROJECTILE_KEY, KeyEvent.VK_I, KEY_CATEGORY_TUTORIAL);
-    public static KeyBinding burstKey = new KeyBinding(BURST_KEY, KeyEvent.VK_O, KEY_CATEGORY_TUTORIAL);
+    public static KeyBinding primaryKey = new KeyBinding(PRIMARY_KEY, KeyEvent.VK_U, KEY_CATEGORY_TUTORIAL);
+    public static KeyBinding secondaryKey = new KeyBinding(SECONDARY_KEY, KeyEvent.VK_I, KEY_CATEGORY_TUTORIAL);
+    public static KeyBinding compositeKey = new KeyBinding(COMPOSITE_KEY, KeyEvent.VK_O, KEY_CATEGORY_TUTORIAL);
 
     public static void register(final FMLClientSetupEvent event) {
-        ClientRegistry.registerKeyBinding(manaKey);
-        ClientRegistry.registerKeyBinding(projectileKey);
-        ClientRegistry.registerKeyBinding(burstKey);
+        ClientRegistry.registerKeyBinding(primaryKey);
+        ClientRegistry.registerKeyBinding(secondaryKey);
+        ClientRegistry.registerKeyBinding(compositeKey);
     }
 }

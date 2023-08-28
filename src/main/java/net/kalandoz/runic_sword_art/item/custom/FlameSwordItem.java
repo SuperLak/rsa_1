@@ -1,7 +1,6 @@
 package net.kalandoz.runic_sword_art.item.custom;
 
-import net.kalandoz.runic_sword_art.client.ClientEvents;
-import net.kalandoz.runic_sword_art.utils.ManaUtils;
+import net.kalandoz.runic_sword_art.utils.AttunementUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
@@ -54,7 +53,7 @@ public class FlameSwordItem extends SwordItem {
     public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         // sets target on fire for a number of seconds
         if (attacker instanceof PlayerEntity) {
-            if (ManaUtils.consumeMana(null, (PlayerEntity) attacker, 5)) {
+            if (AttunementUtils.consumePrimaryMana(null, (PlayerEntity) attacker, 5)) {
                 target.setFire(5);
 
             } else {
@@ -70,8 +69,8 @@ public class FlameSwordItem extends SwordItem {
         // retrieves an instance of player for later applications
         PlayerEntity player = worldIn.getClosestPlayer(entityIn, 1);
         // fills the player's mana in 3 minutes
-        if (tickCounter % 20 == 0) {
-            ManaUtils.fillManaProportionally(null, player, 300);
+        if (tickCounter % 20 == 0 && isSelected) {
+            AttunementUtils.fillAllManaProportionally(null, player, 300);
         }
         // activates when tickCounter reaches 40
         // (every 2 seconds)
@@ -110,7 +109,7 @@ public class FlameSwordItem extends SwordItem {
                 // sets nearby ground on fire semi-randomly
                 lightGroundOnFire(context);
                 // damages item (and breaks it if it would break)
-                ManaUtils.consumeMana(null, player, 10);
+                AttunementUtils.consumeSecondaryMana(null, player, 10);
             }
         }
         return super.onItemUse(context);

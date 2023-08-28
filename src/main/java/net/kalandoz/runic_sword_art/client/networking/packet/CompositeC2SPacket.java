@@ -1,44 +1,39 @@
 package net.kalandoz.runic_sword_art.client.networking.packet;
 
-import net.kalandoz.runic_sword_art.item.ModItems;
-import net.kalandoz.runic_sword_art.utils.AoEUtils;
-import net.kalandoz.runic_sword_art.utils.ManaUtils;
+import net.kalandoz.runic_sword_art.utils.AttunementUtils;
 import net.kalandoz.runic_sword_art.utils.RunicUtils;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
-public class BurstC2SPacket {
+public class CompositeC2SPacket {
 
     public int key;
 
-    public BurstC2SPacket() {
+    public CompositeC2SPacket() {
 
     }
 
-    public BurstC2SPacket(int key) {
+    public CompositeC2SPacket(int key) {
         this.key = key;
     }
 
-    public static void encode(BurstC2SPacket packet, PacketBuffer buffer) {
+    public static void encode(CompositeC2SPacket packet, PacketBuffer buffer) {
         buffer.writeInt(packet.key);
     }
 
-    public static BurstC2SPacket decode(PacketBuffer buffer) {
-        return new BurstC2SPacket(buffer.readInt());
+    public static CompositeC2SPacket decode(PacketBuffer buffer) {
+        return new CompositeC2SPacket(buffer.readInt());
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> supplier) {
@@ -46,19 +41,9 @@ public class BurstC2SPacket {
 
         context.enqueueWork(() -> {
             // HERE WE ARE ON THE SERVER!
-            ServerPlayerEntity playerIn = context.getSender();
-            ServerWorld worldIn = Objects.requireNonNull(context.getSender()).getServerWorld();
-            if (playerIn != null) {
-                if (playerIn.getHeldItemMainhand().getItem() == ModItems.FLAME_SWORD.get()) {
-                    // only using power if player has enough mana
-                    if (ManaUtils.consumeMana(null, playerIn, 40)) {
-                        // lighting nearby enemies on fire
-                        AoEUtils.applyFlameBurstToNearbyEnemies(playerIn, 5);
-                        // spawning particles for flair
-                        spawnParticles(playerIn);
-                    }
-                }
-            }
+            System.out.println("Pre composite message");
+            AttunementUtils.compositeAbility(context);
+            System.out.println("Post composite message");
         });
         return true;
     }
